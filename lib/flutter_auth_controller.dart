@@ -1,4 +1,4 @@
-library get_storage;
+library flutter_auth;
 
 import 'package:flutter_form/models.dart';
 import 'package:get/get.dart';
@@ -30,7 +30,6 @@ class AuthController extends GetxController {
   saveToken(dynamic body) async {
     print("The token is ");
     await box.write('token', body);
-    checkloggedIn();
 
     // formPost();
   }
@@ -39,6 +38,7 @@ class AuthController extends GetxController {
     print("Logout");
     //  const url = `${this.config.APIEndpoint}/${this.config.revokeTokenUrl}`
     var token = await getToken();
+
     print(token);
     try {
       var data = {"token": token["access_token"], "client_id": config.clientId};
@@ -58,7 +58,31 @@ class AuthController extends GetxController {
     }
   }
 
+  getSaveProfile(dynamic token) async {
+    saveToken(token);
+    authProv.onInit();
+    try {
+      var profile = await authProv.formGet(config.profileUrl);
+      print(profile.statusCode);
+      print(profile.body);
+      if (profile.statusCode == 200) {
+        await saveProfile(profile.body);
+      }
+      checkloggedIn();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   getToken() {
     return box.read('token');
+  }
+
+  saveProfile(dynamic body) {
+    return box.write('profile', body);
+  }
+
+  getProfile() {
+    return box.read('profile');
   }
 }

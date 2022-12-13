@@ -1,3 +1,5 @@
+library flutter_auth;
+
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_auth/options.dart';
@@ -31,10 +33,10 @@ class LoginWidget extends StatelessWidget {
         "client_id": config.clientId,
         "grant_type": config.grantType,
       },
-      onSuccess: (res) {
+      onSuccess: (res) async {
         dprint("Logged in");
         dprint(res);
-        authController.saveToken(res);
+        await authController.getSaveProfile(res);
       },
       formGroupOrder: const [
         ["username"],

@@ -1,3 +1,5 @@
+library flutter_auth;
+
 import 'package:flutter_form/models.dart';
 import 'package:flutter_form/utils.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,13 @@ class AuthProvider extends GetConnect {
     dprint(url);
 
     return post(url, body, contentType: contentType);
+  }
+
+  Future<Response> formGet(String? path, {contentType = "application/json"}) {
+    var url = "${config!.apiEndpoint}/${path}";
+    dprint(url);
+
+    return get(url);
   }
 
   Future<Response> formPostUrlEncoded(String? path, dynamic body,
