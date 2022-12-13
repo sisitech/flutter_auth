@@ -22,7 +22,6 @@ class AuthProvider extends GetConnect {
         var head = request.headers['Authorization'] =
             'Bearer ${token["access_token"]}';
       }
-
       // print(request.headers);
       return request;
     });
