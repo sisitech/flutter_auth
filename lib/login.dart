@@ -6,12 +6,15 @@ import 'package:flutter_form/models.dart';
 import 'package:flutter_form/utils.dart';
 import 'package:get/get.dart';
 
+import 'flutter_auth_controller.dart';
+
 class LoginWidget extends StatelessWidget {
   const LoginWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     APIConfig config = Get.find<APIConfig>();
+    AuthController authController = Get.find<AuthController>();
 
     return MyCustomForm(
       formItems: options,
@@ -31,6 +34,7 @@ class LoginWidget extends StatelessWidget {
       onSuccess: (res) {
         dprint("Logged in");
         dprint(res);
+        authController.saveToken(res);
       },
       formGroupOrder: const [
         ["username"],

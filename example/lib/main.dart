@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_auth/flutter_auth_controller.dart';
 import 'package:flutter_auth/login.dart';
 import 'package:flutter_form/flutter_form.dart';
 import 'package:flutter_form/models.dart';
 import 'package:flutter_form/utils.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
   Get.put<APIConfig>(APIConfig(
       apiEndpoint: "https://dukapi.roometo.com",
       version: "api/v1",
@@ -13,7 +15,18 @@ void main() {
       tokenUrl: 'o/token/',
       grantType: "password",
       revokeTokenUrl: 'o/revoke_token/'));
+  await GetStorage.init();
+  Get.lazyPut(() => AuthController());
+  // StoreBinding();
   runApp(const MyApp());
+}
+
+class StoreBinding implements Bindings {
+// default dependency
+  @override
+  void dependencies() {
+    Get.lazyPut(() => AuthController());
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +35,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      // initialBinding: ,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -34,6 +48,9 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   late String title;
+
+  AuthController authController = Get.find<AuthController>();
+
   MyHomePage({super.key, this.title = "Hello world !"});
 
   @override
@@ -42,13 +59,38 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Login"),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          LoginWidget(),
-        ],
-      ),
+      body: Obx(() => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (authController.isAuthenticated$.value) ...[
+                HomePage(),
+              ] else
+                LoginWidget(),
+            ],
+          )),
     );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
+  AuthController authController = Get.find<AuthController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text("Logged in"),
+        ElevatedButton(
+          onPressed: logout,
+          child: Text("Logout"),
+        )
+      ],
+    );
+  }
+
+  logout() async {
+    await authController.logout();
   }
 }

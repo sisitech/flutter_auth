@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   flutter_form:
     path: /Users/mac/MyProjects/Flutter/flutter_form
+  get: ^4.6.5
+  get_storage: ^2.0.3
 
 dev_dependencies:
   flutter_test:
