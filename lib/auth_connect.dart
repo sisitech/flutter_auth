@@ -39,11 +39,12 @@ class AuthProvider extends GetConnect {
     return post(url, body, contentType: contentType);
   }
 
-  Future<Response> formGet(String? path, {contentType = "application/json"}) {
+  Future<Response> formGet(String? path,
+      {contentType = "application/json",
+      Map<String, dynamic> query = const {}}) {
     var url = "${config!.apiEndpoint}/${path}";
     dprint(url);
-
-    return get(url);
+    return get(url, query: query);
   }
 
   Future<Response> formPostUrlEncoded(String? path, dynamic body,

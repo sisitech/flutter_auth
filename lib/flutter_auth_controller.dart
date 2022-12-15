@@ -49,10 +49,9 @@ class AuthController extends GetxController {
       print(response);
       print(response.statusCode);
       print(response.body);
-      if (response.statusCode == 200) {
-        await box.remove('token');
-        checkloggedIn();
-      }
+      if (response.statusCode == 200) {}
+      await box.remove('token');
+      checkloggedIn();
     } catch (e) {
       print(e);
     }
@@ -69,8 +68,10 @@ class AuthController extends GetxController {
         await saveProfile(profile.body);
       }
       checkloggedIn();
+      return;
     } catch (e) {
       print(e);
+      return;
     }
   }
 
