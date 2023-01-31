@@ -11,7 +11,8 @@ import 'package:get/get.dart';
 import 'flutter_auth_controller.dart';
 
 class LoginWidget extends StatelessWidget {
-  const LoginWidget({super.key});
+  final Function? onLoginChange;
+  const LoginWidget({super.key, this.onLoginChange});
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,9 @@ class LoginWidget extends StatelessWidget {
         dprint("Logged in");
         dprint(res);
         await authController.getSaveProfile(res);
+        if (onLoginChange != null) {
+          onLoginChange!(res);
+        }
       },
       formGroupOrder: const [
         ["username"],

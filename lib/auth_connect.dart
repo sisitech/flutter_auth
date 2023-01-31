@@ -44,6 +44,7 @@ class AuthProvider extends GetConnect {
       Map<String, dynamic> query = const {}}) {
     var url = "${config!.apiEndpoint}/${path}";
     dprint(url);
+    dprint(query);
     return get(url, query: query);
   }
 
