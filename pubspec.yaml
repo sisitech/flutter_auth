@@ -11,7 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_form:
-    path: /Users/mac/MyProjects/Flutter/flutter_form
+    git:
+      url: git@github.com:sisitech/flutter-forms.git
+      
   get: ^4.6.5
   get_storage: ^2.0.3
 
