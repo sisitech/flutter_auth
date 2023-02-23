@@ -18,6 +18,7 @@ class AppTranslations extends Translations {
           'Signing in...': 'Naingia...',
           'Teacher Type': 'Cheo cha Mwalimu',
           'Username': 'Kitambulisho',
+          'Your password might be wrong': 'Kuna uwezo umekose neno siri lako',
           'Active': 'Inatumika',
           "TSC": "tsc",
           "empty_field": "Linahitajika",

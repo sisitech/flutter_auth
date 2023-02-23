@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/flutter_auth_controller.dart';
-import 'package:flutter_auth/login.dart';
-import 'package:flutter_form/flutter_form.dart';
-import 'package:flutter_form/models.dart';
-import 'package:flutter_form/utils.dart';
+import 'package:flutter_login/flutter_login.dart';
+import 'package:flutter_utils/models.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
