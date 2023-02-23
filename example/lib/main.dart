@@ -7,6 +7,8 @@ import 'package:flutter_form/utils.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'internalization/translate.dart';
+
 void main() async {
   Get.put<APIConfig>(APIConfig(
       apiEndpoint: "https://dukapi.roometo.com",
@@ -38,7 +40,10 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       // initialBinding: ,
       title: 'Flutter Demo',
+      translations: AppTranslations(),
+      locale: const Locale('swa', 'KE'),
       theme: ThemeData(
+        useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),

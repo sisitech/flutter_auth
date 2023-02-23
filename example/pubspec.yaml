@@ -33,11 +33,11 @@ dependencies:
     sdk: flutter
 
   flutter_form:
-     git:
+    git:
       url: git@github.com:sisitech/flutter-forms.git
 
   flutter_auth:
-     git:
+    git:
       url: git@github.com:sisitech/flutter_auth.git
 
   # The following adds the Cupertino Icons font to your application.

@@ -86,16 +86,20 @@ packages:
   flutter_auth:
     dependency: "direct main"
     description:
-      path: "/Users/mac/MyProjects/Flutter/flutter_auth"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "7dc1dd5cec77dcef1b5914904fd84dd6adbc273d"
+      url: "git@github.com:sisitech/flutter_auth.git"
+    source: git
     version: "0.0.1"
   flutter_form:
     dependency: "direct main"
     description:
-      path: "/Users/mac/MyProjects/Flutter/flutter_form"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "9e2fb8fc5a215992e225aaf65e87bc1295de3c4e"
+      url: "git@github.com:sisitech/flutter-forms.git"
+    source: git
     version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"
@@ -104,13 +108,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
-  flutter_tables:
-    dependency: "direct main"
-    description:
-      path: "/Users/mac/MyProjects/Flutter/flutter_tables"
-      relative: false
-    source: path
-    version: "0.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
