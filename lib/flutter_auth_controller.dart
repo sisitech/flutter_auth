@@ -1,9 +1,8 @@
 library flutter_auth;
 
-import 'package:flutter_form/models.dart';
+import 'package:flutter_utils/models.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-
 import 'auth_connect.dart';
 
 class AuthController extends GetxController {

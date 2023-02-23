@@ -1,7 +1,7 @@
 library flutter_auth;
 
-import 'package:flutter_form/models.dart';
-import 'package:flutter_form/utils.dart';
+import 'package:flutter_utils/flutter_utils.dart';
+import 'package:flutter_utils/models.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 // import 'package:http/http.dart' as http;

@@ -15,6 +15,7 @@ class AppTranslations extends Translations {
           'Submit': 'Wasilisha',
           'Contact name': 'Jina la mhusika',
           'Name': 'Jina',
+          'Signing in...': 'Naingia...',
           'Teacher Type': 'Cheo cha Mwalimu',
           'Username': 'Kitambulisho',
           'Active': 'Inatumika',

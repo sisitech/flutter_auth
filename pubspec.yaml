@@ -10,10 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_form:
+
+  flutter_utils:
     git:
-      url: git@github.com:sisitech/flutter-forms.git
-      
+      url: git@github.com:sisitech/flutter_utils.git
+
   get: ^4.6.5
   get_storage: ^2.0.3
 
