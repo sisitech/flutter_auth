@@ -48,6 +48,15 @@ class AuthProvider extends GetConnect {
     return get(url, query: query);
   }
 
+  Future<Response> formDelete(String? path,
+      {contentType = "application/json",
+      Map<String, dynamic> query = const {}}) {
+    var url = "${config!.apiEndpoint}/${path}";
+    dprint(url);
+    dprint(query);
+    return delete(url, query: query);
+  }
+
   Future<Response> formPostUrlEncoded(String? path, dynamic body,
       {contentType = "application/x-www-form-urlencoded"}) {
     var url = "${config!.apiEndpoint}/${path}";
