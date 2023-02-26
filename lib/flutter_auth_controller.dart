@@ -10,7 +10,7 @@ class AuthController extends GetxController {
   final box = GetStorage();
   var config = Get.find<APIConfig>();
   var authProv = Get.put<AuthProvider>(AuthProvider());
-
+  Rx<Map<String, dynamic>?> profile = Rx(null);
   @override
   void onInit() {
     // TODO: implement onInit
@@ -19,11 +19,13 @@ class AuthController extends GetxController {
     print("Auth controller init...");
   }
 
-  checkloggedIn() {
-    var token = getToken();
+  checkloggedIn() async {
+    var token = await getToken();
+    var read_profile = await getProfile();
     print("The token is ");
     print(token);
     isAuthenticated$.value = token != null;
+    profile.value = read_profile;
   }
 
   saveToken(dynamic body) async {
@@ -60,11 +62,12 @@ class AuthController extends GetxController {
     saveToken(token);
     authProv.onInit();
     try {
-      var profile = await authProv.formGet(config.profileUrl);
-      print(profile.statusCode);
-      print(profile.body);
-      if (profile.statusCode == 200) {
-        await saveProfile(profile.body);
+      var received_profile = await authProv.formGet(config.profileUrl);
+      print(received_profile.statusCode);
+      print(received_profile.body);
+      if (received_profile.statusCode == 200) {
+        profile = received_profile.body;
+        await saveProfile(received_profile.body);
       }
       checkloggedIn();
       return;
