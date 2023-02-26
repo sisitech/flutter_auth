@@ -58,11 +58,17 @@ class AuthProvider extends GetConnect {
   }
 
   Future<Response> formPatch(String? path, dynamic body,
-      {contentType = "application/json"}) {
+      {contentType = "application/json", removeNullFields = true}) {
     var url = "${config!.apiEndpoint}/${path}";
     dprint(url);
+    var dataToPatch;
+    if (removeNullFields) {
+      dataToPatch = removeNullFields(body);
+    } else {
+      dataToPatch = body;
+    }
 
-    return patch(url, removeNullFields(body), contentType: contentType);
+    return patch(url, dataToPatch, contentType: contentType);
   }
 
   Future<Response> formPostUrlEncoded(String? path, dynamic body,
