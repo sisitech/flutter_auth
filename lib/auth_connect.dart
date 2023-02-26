@@ -57,6 +57,14 @@ class AuthProvider extends GetConnect {
     return delete(url, query: query);
   }
 
+  Future<Response> formPatch(String? path, dynamic body,
+      {contentType = "application/json"}) {
+    var url = "${config!.apiEndpoint}/${path}";
+    dprint(url);
+
+    return patch(url, removeNullFields(body), contentType: contentType);
+  }
+
   Future<Response> formPostUrlEncoded(String? path, dynamic body,
       {contentType = "application/x-www-form-urlencoded"}) {
     var url = "${config!.apiEndpoint}/${path}";
@@ -72,5 +80,17 @@ class AuthProvider extends GetConnect {
       fields.add("${key}=${value}");
     });
     return fields.join("&");
+  }
+
+  removeNullFields(Map<String, dynamic> formData) {
+    dprint("formData");
+    dprint(formData);
+    Map<String, dynamic> res = {};
+    formData.forEach((key, value) {
+      if (value != null) {
+        res[key] = value;
+      }
+    });
+    return res;
   }
 }
