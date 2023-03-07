@@ -29,20 +29,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_auth:
   flutter:
     sdk: flutter
 
   flutter_form:
     git:
       url: git@github.com:sisitech/flutter-forms.git
-
-  flutter_auth:
-    git:
-      url: git@github.com:sisitech/flutter_auth.git
-
-  flutter_login:
-    git:
-      url: git@github.com:sisitech/flutter_login.git
 
   flutter_utils:
     git:
@@ -53,6 +46,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: ^4.6.5
   get_storage: ^2.0.3
+
+dependency_overrides:
+  flutter_auth:
+    path: ../
 
 dev_dependencies:
   flutter_test:
