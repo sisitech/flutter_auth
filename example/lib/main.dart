@@ -1,27 +1,66 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_auth/flutter_auth_controller.dart';
+import 'package:flutter_auth/offline_cache/models.dart';
+import 'package:flutter_auth/offline_cache/offline_cache_controller.dart';
 import 'package:flutter_form/flutter_form.dart';
 import 'package:flutter_form/models.dart';
+import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_utils/flutter_utils.dart';
 import 'package:flutter_utils/models.dart';
 import 'package:flutter_utils/network_status/network_status_controller.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'database/db.dart';
 import 'internalization/translate.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:drift/native.dart';
 
-void main() async {
-  Get.put<APIConfig>(APIConfig(
-      apiEndpoint: "https://dukapi.roometo.com",
+getApiConfig() {
+  return APIConfig(
+      apiEndpoint: "https://api.expensetracker.wavvy.dev",
       version: "api/v1",
-      clientId: "NUiCuG59zwZJR14tIdWD7iQ5ILFnpxbdrO2epHIG",
+      clientId: "fbaPXGrD6wewVEqoOkJfvierIrYbnROPXMa8CDv5",
       tokenUrl: 'o/token/',
       grantType: "password",
-      revokeTokenUrl: 'o/revoke_token/'));
-  // await GetStorage.init(offline_login_storage_container);
+      revokeTokenUrl: 'o/revoke_token/');
+}
+
+// APIConfig(
+//         apiEndpoint: "https://dukapi.roometo.com",
+//         version: "api/v1",
+//         clientId: "NUiCuG59zwZJR14tIdWD7iQ5ILFnpxbdrO2epHIG",
+//         tokenUrl: 'o/token/',
+//         grantType: "password",
+//         revokeTokenUrl: 'o/revoke_token/'),
+
+drift.LazyDatabase _openConnection() {
+  return drift.LazyDatabase(() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'dbata11P2OI8678U.sqlite'));
+    return NativeDatabase(file);
+  });
+}
+
+void main() async {
+  // Get.put<APIConfig>(getApiConfig());
+  Get.put<APIConfig>(
+    getApiConfig()
+  );
+  await GetStorage.init(offline_login_storage_container);
   await GetStorage.init();
-  Get.lazyPut(() => AuthController());
+  Get.put(AuthController());
   Get.put(NetworkStatusController());
+  const v1 = "api/v1";
+
+  Get.put(OfflineCacheSyncController(database: AppDatabase(_openConnection()), offlineCacheItems:[
+    OfflineCacheItem(tableName: 'category',path:"$v1/categories"),
+    // OfflineCacheItem(tableName: 'sub_categories', path: "$v1/sub-categories"),
+  ]));
+
   // StoreBinding();
   runApp(const MyApp());
 }
@@ -74,15 +113,26 @@ class MyHomePage extends StatelessWidget {
               if (authController.isAuthenticated$.value) ...[
                 HomePage(),
               ] else
-                LoginWidget(),
+                // LoginWidget(
+                //   // override_options: const {
+                //   //   "instance": {
+                //   //     "username": "michameiu@gmail.com",
+                //   //     "password": "mm",
+                //   //   }
+                //   // },
+                //   onLoginChange: (state) {
+                //     dprint(state);
+                //   },
+                // ),
+                LoginWidgetA(),
             ],
           )),
     );
   }
 }
 
-class LoginWidget extends StatelessWidget {
-  const LoginWidget({super.key});
+class LoginWidgetA extends StatelessWidget {
+  const LoginWidgetA({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +161,7 @@ class LoginWidget extends StatelessWidget {
         }
       },
       instance: {
-        "username": "micha@sisitech.com",
+        "username": "michameiu@gmail.com",
         "password": "mm",
       },
       onOfflineSuccess: (res) {
@@ -128,6 +178,10 @@ class LoginWidget extends StatelessWidget {
         //Save the login Form
         return res;
       },
+      handleErrors: (err) {
+        dprint(err);
+        return err;
+      },
       onSuccess: (res) async {
         dprint("Logged in");
         dprint(res);
@@ -143,6 +197,7 @@ class LoginWidget extends StatelessWidget {
         ["password"]
       ],
       formTitle: "Signup",
+      name: 'loginwidget',
     );
   }
 }
@@ -166,6 +221,12 @@ class HomePage extends StatelessWidget {
         ElevatedButton(
           onPressed: lock,
           child: Text("Lock"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            authController.updateOfflineProfile();
+          },
+          child: Text("Get Profile"),
         )
       ],
     );

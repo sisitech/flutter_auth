@@ -18,11 +18,17 @@ dependencies:
 
   get: ^4.6.5
   get_storage: ^2.0.3
+  intl: ^0.18.0
+  drift: ^2.4.2
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  drift_dev: ^2.4.1
+  build_runner: ^2.3.3
+  json_serializable: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

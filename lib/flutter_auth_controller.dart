@@ -1,6 +1,7 @@
 library flutter_auth;
 
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter_utils/extensions/date_extensions.dart';
 import 'package:flutter_utils/flutter_utils.dart';
 
 import 'package:flutter_utils/models.dart';
@@ -32,14 +33,18 @@ class AuthController extends GetxController {
   }
 
   checkloggedIn() async {
-    var token = await getToken();
-    var read_profile = await getProfile();
-    // Token is not null and lock is false
-    isAuthenticated$.value = token != null && !(await getLockStatus());
-    dprint(token);
-    dprint(
-        "toke is null ${token != null} and lock status ${await getLockStatus()}");
-    profile.value = read_profile;
+    try {
+      var token = await getToken();
+      var read_profile = await getProfile();
+      // Token is not null and lock is false
+      isAuthenticated$.value = token != null && !(await getLockStatus());
+      dprint(token);
+      dprint(
+          "toke is not null ${token != null} and lock status ${await getLockStatus()}");
+      profile.value = read_profile;
+    } catch (er) {
+      isAuthenticated$.value = false;
+    }
   }
 
   Future<bool> getLockStatus() async {
@@ -47,7 +52,30 @@ class AuthController extends GetxController {
     return Future.value(res);
   }
 
-  saveToken(dynamic body) async {
+  Future<String> getTokenExipration(Map<String, dynamic> token,
+      {default_expires_in = 300}) async {
+    if (token.containsKey("expires_at")) {
+      return token["expires_at"];
+    }
+    var expires_in = token?["expires_in"] ?? default_expires_in;
+    // dprint(expires_in);
+    double expires_in_seconds_80_percent = (expires_in * 0.8) as double;
+    int expires_sec = expires_in_seconds_80_percent.round();
+    dprint(expires_in_seconds_80_percent);
+    dprint(expires_sec);
+
+    var expires_at = DateTime.now().add(
+      Duration(
+        seconds: expires_sec,
+      ),
+    );
+    return Future.value(expires_at.toAPIDateTime);
+  }
+
+  saveToken(Map<String, dynamic> body) async {
+    body.remove("expires_in");
+    body["expires_at"] = await getTokenExipration(body);
+    dprint(body);
     await box.write('token', body);
     return box.write('locked', false);
   }
@@ -107,9 +135,9 @@ class AuthController extends GetxController {
   logout() async {
     dprint("Logout");
     //  const url = `${this.config.APIEndpoint}/${this.config.revokeTokenUrl}`
-    var token = await getToken();
-    dprint(token);
     try {
+      var token = await getToken(skipRefresh: true);
+      dprint(token);
       var data = {"token": token["access_token"], "client_id": config.clientId};
       dprint(data);
       dprint(config.revokeTokenUrl);
@@ -126,9 +154,27 @@ class AuthController extends GetxController {
     }
   }
 
+  updateOfflineProfile() async {
+    dynamic token = await getToken();
+    authProv.updateHttModifier();
+    try {
+      var received_profile = await authProv.formGet(config.profileUrl);
+      dprint(received_profile.statusCode);
+      dprint(received_profile.body);
+      if (received_profile.statusCode == 200) {
+        profile.value = received_profile.body;
+        await saveProfile(received_profile.body);
+      }
+      return;
+    } catch (e) {
+      dprint(e);
+      return;
+    }
+  }
+
   getSaveProfile(dynamic token) async {
     await saveToken(token);
-    authProv.onInit();
+    authProv.updateHttModifier();
     try {
       var received_profile = await authProv.formGet(config.profileUrl);
       dprint(received_profile.statusCode);
@@ -145,8 +191,9 @@ class AuthController extends GetxController {
     }
   }
 
-  getToken() {
-    return box.read('token');
+  getToken({bool skipRefresh = false}) async {
+    var token = await authProv.getToken();
+    return token;
   }
 
   saveProfile(dynamic body) {
