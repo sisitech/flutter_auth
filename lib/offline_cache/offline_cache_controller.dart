@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_auth/flutter_auth_controller.dart';
 import 'package:flutter_utils/flutter_utils.dart';
 import 'package:get/get.dart';
@@ -61,7 +62,9 @@ class OfflineCacheSyncController extends GetxController {
             for (var item in items) {
               try {
                 await database?.insertItem(name, item);
-              } catch (e) {
+              } catch (e, stackTrace) {
+                print("Db add failed.");
+                debugPrintStack(stackTrace: stackTrace);
                 print(e);
               }
             }
