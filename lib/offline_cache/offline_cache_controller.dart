@@ -23,7 +23,7 @@ class OfflineCacheSyncController extends GetxController {
   void onInit() {
     super.onInit();
     //
-    updateCache();
+    // updateCache();
   }
 
   updateCache() async {
