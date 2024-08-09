@@ -13,12 +13,11 @@ class OfflineCacheSyncController extends GetxController {
   GetStorage? box;
   OfflineCacheTable? database;
 
-
-  
   AuthProvider authProv = Get.put<AuthProvider>(AuthProvider());
   AuthController authController = Get.put<AuthController>(AuthController());
-  
-  OfflineCacheSyncController({this.offlineCacheItems=const [],this.box,this.database});
+
+  OfflineCacheSyncController(
+      {this.offlineCacheItems = const [], this.box, this.database});
 
   @override
   void onInit() {
@@ -27,14 +26,14 @@ class OfflineCacheSyncController extends GetxController {
     updateCache();
   }
 
-  updateCache()async{
-    if(database==null && box==null){
-      throw("Both the database and box cannot be null");
+  updateCache() async {
+    if (database == null && box == null) {
+      throw ("Both the database and box cannot be null");
     }
     // dprint("Auth ::==> ${authController.isAuthenticated$.value} ");
     // await authController.checkloggedIn();
     // if(authController.isAuthenticated$.value){
-      getOfflineCacheItem();
+    getOfflineCacheItem();
     // }else {
     //   dprint("Waiting for authentication, will try on next rebbot");
     // }
@@ -42,45 +41,58 @@ class OfflineCacheSyncController extends GetxController {
 
   getOfflineCacheItem() async {
     for (var i = 0; i < offlineCacheItems.length; i++) {
-      
       var name = offlineCacheItems[i].tableName;
       var path = offlineCacheItems[i].path;
-      dprint("Getting cache $name");
-      var items = await getItemFromApi(path);
-      
-      // dprint(items);
-      // if (name == "states") {
-      //   dprint(items);
-      // }
-      if (items != null) {
-        if(box !=null){
-          dprint("Saving ${items.length} $name");
-          await box?.write(name, items);
-        }else if(database !=null){
-          dprint("Saving katadabase..");
-          for(var item in items){
-            try {
-             await database?.insertItem(name, item);              
-            } catch (e) {
-              print(e);
+      dprint("Cache $name");
+
+      var hadMoredata = true;
+      var page = 1;
+      while (hadMoredata) {
+        dprint("Getting cache $name  Page:$page");
+
+        var pageResult = await getItemFromApi(path, page.toString());
+        var items = pageResult.results;
+        if (items != null) {
+          if (box != null) {
+            // dprint("Saving ${items.length} $name");
+            await box?.write(name, items);
+          } else if (database != null) {
+            // dprint("Saving katadabase..");
+            for (var item in items) {
+              try {
+                await database?.insertItem(name, item);
+              } catch (e) {
+                print(e);
+              }
             }
           }
+          dprint("Saved $name page $page");
         }
-        dprint("Saved $name");
+        page++;
+        if (pageResult.next == null) {
+          hadMoredata = false;
+        }
       }
     }
     dprint("Notifiy people");
   }
 
-  Future<dynamic?> getItemFromApi(path) async {
+  Future<PageResult> getItemFromApi(String path, String page) async {
+    PageResult pageResult = PageResult();
+
     try {
-      var res = await authProv.formGet(path);
+      var res = await authProv.formGet(path, query: {"page": page});
       if (res.statusCode == 200) {
+        pageResult.isSuccessful = true;
         try {
-          return res.body["results"];
+          // return res.body["results"];
+          pageResult.next = res.body["next"];
+          pageResult.previous = res.body["previous"];
+          pageResult.results = res.body["results"];
+          pageResult.count = res.body["count"];
         } catch (e) {
           dprint(e);
-          return res.body;
+          pageResult.isSuccessful = true;
         }
       } else {
         dprint(res.statusCode);
@@ -90,7 +102,6 @@ class OfflineCacheSyncController extends GetxController {
       dprint("Failed");
       dprint(e);
     }
-    dprint("Returning nothing..");
-    return null;
+    return pageResult;
   }
 }

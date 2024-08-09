@@ -20,7 +20,6 @@ dependencies:
   get_storage: ^2.0.3
   intl: ^0.18.0
   drift: ^2.4.2
-  
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +28,20 @@ dev_dependencies:
   drift_dev: ^2.4.1
   build_runner: ^2.3.3
   json_serializable: ^6.0.0
+
+# Configuration for the drift_dev package
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          sql:
+            dialect: sqlite
+            options:
+              modules:
+                - json1
+                - fts5
+                - math
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

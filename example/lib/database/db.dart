@@ -62,7 +62,7 @@ class AppDatabase extends _$AppDatabase implements OfflineCacheTable {
   // CRUD operations
   Future<int> addTodo(TodosCompanion entry) => into(todos).insert(entry);
   Future<List<Todo>> getAllTodos() => select(todos).get();
-  
+
   // Future<int> updateTodoEntry(Todo entry) => update(todos).replace(entry);
   Future<int> deleteTodoEntry(Todo entry) => delete(todos).delete(entry);
 
@@ -75,40 +75,42 @@ class AppDatabase extends _$AppDatabase implements OfflineCacheTable {
     }
   }
 
-  Future<int> insertCategory(Map<String, dynamic> item)async{
-    var systemId=item["id"];
-    final companion = _createCompanion("category", item) as Insertable<CategoryData>;
-    final query = select(category)..where((tbl) => tbl.systemId.equals(systemId));
+  Future<int> insertCategory(Map<String, dynamic> item) async {
+    var systemId = item["id"];
+    final companion =
+        _createCompanion("category", item) as Insertable<CategoryData>;
+    final query = select(category)
+      ..where((tbl) => tbl.systemId.equals(systemId));
     final result = await query.get();
-    if(result.isNotEmpty){
+    if (result.isNotEmpty) {
       return 1;
-    }else {
-      if(companion !=null){
-      return await into(category).insert(companion);        
+    } else {
+      if (companion != null) {
+        return await into(category).insert(companion);
       }
     }
-     return 0;
+    return 0;
   }
 
   // Method to insert items into the correct table dynamically
   Future<void> insertItem(String tableName, Map<String, dynamic> item) async {
-     dprint("hello maind.....");
+    //  dprint("hello maind.....");
     final table = _getTableByName(tableName);
     if (table != null) {
-      Function? insertFunction=_getInsertFunction(tableName);
-      if(insertFunction !=null){
-      var  res= await insertFunction(item);
-      dprint("Database operation $res",);
+      Function? insertFunction = _getInsertFunction(tableName);
+      if (insertFunction != null) {
+        var res = await insertFunction(item);
+        // dprint("Database operation $res",);
       }
     } else {
       throw Exception('Table not found in _getTableByName');
     }
   }
 
-  Map<String, TableInfo> _tables() { 
+  Map<String, TableInfo> _tables() {
     return {
-    'todos': todos,
-    'category': category,
+      'todos': todos,
+      'category': category,
     };
   }
 
@@ -116,11 +118,11 @@ class AppDatabase extends _$AppDatabase implements OfflineCacheTable {
     return _tables()?[tableName];
   }
 
-   Insertable? _createCompanion(String tableName, Map<String, dynamic> item) {
+  Insertable? _createCompanion(String tableName, Map<String, dynamic> item) {
     return _companions[tableName]?.call(item);
   }
 
-   final Map<String, Insertable Function(Map<String, dynamic>)> _companions = {
+  final Map<String, Insertable Function(Map<String, dynamic>)> _companions = {
     'todos': (item) => TodosCompanion(
           sysId: Value(item['id']),
           name: Value(item['name']),
@@ -132,10 +134,7 @@ class AppDatabase extends _$AppDatabase implements OfflineCacheTable {
           description: Value(item['description']),
         ),
   };
-  
+
   @override
-  String systemIdColumn="systemId";
-  
-
+  String systemIdColumn = "systemId";
 }
-

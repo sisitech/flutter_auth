@@ -47,19 +47,19 @@ drift.LazyDatabase _openConnection() {
 
 void main() async {
   // Get.put<APIConfig>(getApiConfig());
-  Get.put<APIConfig>(
-    getApiConfig()
-  );
+  Get.put<APIConfig>(getApiConfig());
   await GetStorage.init(offline_login_storage_container);
   await GetStorage.init();
   Get.put(AuthController());
   Get.put(NetworkStatusController());
   const v1 = "api/v1";
 
-  Get.put(OfflineCacheSyncController(database: AppDatabase(_openConnection()), offlineCacheItems:[
-    OfflineCacheItem(tableName: 'category',path:"$v1/categories"),
-    // OfflineCacheItem(tableName: 'sub_categories', path: "$v1/sub-categories"),
-  ]));
+  Get.put(OfflineCacheSyncController(
+      database: AppDatabase(_openConnection()),
+      offlineCacheItems: [
+        OfflineCacheItem(tableName: 'category', path: "$v1/tagging-rules"),
+        // OfflineCacheItem(tableName: 'sub_categories', path: "$v1/sub-categories"),
+      ]));
 
   // StoreBinding();
   runApp(const MyApp());
@@ -111,6 +111,7 @@ class MyHomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (authController.isAuthenticated$.value) ...[
+                Text("hello"),
                 HomePage(),
               ] else
                 // LoginWidget(

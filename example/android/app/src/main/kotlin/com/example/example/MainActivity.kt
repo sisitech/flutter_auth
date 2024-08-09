@@ -1,4 +1,4 @@
-package com.example.example
+package com.sisitech.flutterauth
 
 import io.flutter.embedding.android.FlutterActivity
 
