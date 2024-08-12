@@ -17,6 +17,8 @@ class OfflineCacheSyncController extends GetxController {
   AuthProvider authProv = Get.put<AuthProvider>(AuthProvider());
   AuthController authController = Get.put<AuthController>(AuthController());
 
+  Rx<OfflineCacheStatus?> offlineCacheStatus = Rx(null);
+
   OfflineCacheSyncController(
       {this.offlineCacheItems = const [], this.box, this.database});
 
@@ -40,42 +42,50 @@ class OfflineCacheSyncController extends GetxController {
     // }
   }
 
-  getOfflineCacheItem() async {
-    for (var i = 0; i < offlineCacheItems.length; i++) {
-      var name = offlineCacheItems[i].tableName;
-      var path = offlineCacheItems[i].path;
-      dprint("Cache $name");
-
-      var hadMoredata = true;
-      var page = 1;
-      while (hadMoredata) {
-        dprint("Getting cache $name  Page:$page");
-
-        var pageResult = await getItemFromApi(path, page.toString());
-        var items = pageResult.results;
-        if (items != null) {
-          if (box != null) {
-            // dprint("Saving ${items.length} $name");
-            await box?.write(name, items);
-          } else if (database != null) {
-            // dprint("Saving katadabase..");
-            for (var item in items) {
-              try {
-                await database?.insertItem(name, item);
-              } catch (e, stackTrace) {
-                print("Db add failed.");
-                debugPrintStack(stackTrace: stackTrace);
-                print(e);
-              }
+  getOfflineCacheSinglePage(OfflineCacheItem item) async {
+    var name = item.tableName;
+    var path = item.path;
+    dprint("Cache $name");
+    var hadMoredata = true;
+    var page = 1;
+    while (hadMoredata) {
+      dprint("Getting cache $name  Page:$page");
+      var pageResult = await getItemFromApi(path, page.toString());
+      var items = pageResult.results;
+      if (items != null) {
+        if (box != null) {
+          // dprint("Saving ${items.length} $name");
+          await box?.write(name, items);
+        } else if (database != null) {
+          // dprint("Saving katadabase..");
+          for (var item in items) {
+            try {
+              await database?.insertItem(name, item);
+            } catch (e, stackTrace) {
+              print("Db add failed.");
+              // TODO: remove
+              debugPrintStack(stackTrace: stackTrace);
+              print(e);
             }
           }
-          dprint("Saved $name page $page");
         }
-        page++;
-        if (pageResult.next == null) {
-          hadMoredata = false;
-        }
+        dprint("Saved $name page $page");
       }
+      page++;
+      if (pageResult.next == null) {
+        hadMoredata = false;
+      }
+    }
+  }
+
+  getOfflineCacheItem() async {
+    var pages = offlineCacheItems
+        .map((e) => CachePageIndicator(name: e.tableName))
+        .toList();
+    offlineCacheStatus.value = OfflineCacheStatus();
+    for (var i = 0; i < offlineCacheItems.length; i++) {
+      var item = offlineCacheItems[i];
+      await getOfflineCacheSinglePage(item);
     }
     dprint("Notifiy people");
   }

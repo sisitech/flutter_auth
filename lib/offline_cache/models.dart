@@ -23,3 +23,23 @@ class PageResult {
     this.results = const [],
   });
 }
+
+class CachePageIndicator {
+  late String name;
+  late String status;
+  late int totalCount;
+  late int pageSize;
+  late int page;
+  CachePageIndicator({
+    required this.name,
+    this.status = "Scheduled",
+    this.totalCount = 0,
+    this.pageSize = 0,
+    this.page = 0,
+  });
+}
+
+class OfflineCacheStatus {
+  List<CachePageIndicator> cachepages;
+  OfflineCacheStatus({this.cachepages = const []});
+}
