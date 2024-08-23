@@ -39,7 +39,7 @@ class OfflineCacheSyncController extends GetxController {
     // dprint("Auth ::==> ${authController.isAuthenticated$.value} ");
     // await authController.checkloggedIn();
     // if(authController.isAuthenticated$.value){
-    getOfflineCacheItem();
+    await getOfflineCacheItem();
     // }else {
     //   dprint("Waiting for authentication, will try on next rebbot");
     // }
