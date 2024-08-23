@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'offline_cache_controller.dart';
 
 class OfflineCacheListWidget extends StatelessWidget {
-  const OfflineCacheListWidget({super.key});
+  final Function()? onSynComplete;
+
+  const OfflineCacheListWidget({super.key, this.onSynComplete});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,9 @@ class OfflineCacheListWidget extends StatelessWidget {
                 ? null
                 : () async {
                     await offlineCont.updateCache();
+                    if (onSynComplete != null) {
+                      onSynComplete!();
+                    }
                   },
             icon: Icon(Icons.refresh),
             label: Text("Update"),
