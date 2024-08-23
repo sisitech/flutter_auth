@@ -1,11 +1,38 @@
+import 'package:flutter_utils/text_view/text_view_extensions.dart';
+
+enum cacheStatus {
+  scheduled,
+  processing,
+  completed,
+  partial,
+}
+
+extension cacheExt on cacheStatus {
+  String get name {
+    return this.toString().replaceAll("cacheStatus.", "").capitalizeEachWord;
+  }
+}
+
 class OfflineCacheItem {
   final String path;
   final String tableName;
+  final String? nickName;
+  late int totalCount;
+  late int count;
+  late cacheStatus status;
 
   OfflineCacheItem({
     required this.path,
     required this.tableName,
+    this.nickName,
+    this.totalCount = 0,
+    this.status = cacheStatus.scheduled,
+    this.count = 0,
   });
+
+  String get status_name {
+    return status.name.capitalizeEachWord;
+  }
 }
 
 class PageResult {
@@ -24,22 +51,7 @@ class PageResult {
   });
 }
 
-class CachePageIndicator {
-  late String name;
-  late String status;
-  late int totalCount;
-  late int pageSize;
-  late int page;
-  CachePageIndicator({
-    required this.name,
-    this.status = "Scheduled",
-    this.totalCount = 0,
-    this.pageSize = 0,
-    this.page = 0,
-  });
-}
-
 class OfflineCacheStatus {
-  List<CachePageIndicator> cachepages;
+  List<OfflineCacheItem> cachepages;
   OfflineCacheStatus({this.cachepages = const []});
 }

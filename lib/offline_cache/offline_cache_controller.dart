@@ -13,11 +13,12 @@ class OfflineCacheSyncController extends GetxController {
   List<OfflineCacheItem> offlineCacheItems;
   GetStorage? box;
   OfflineCacheTable? database;
+  var isLoading = false.obs;
 
   AuthProvider authProv = Get.put<AuthProvider>(AuthProvider());
   AuthController authController = Get.put<AuthController>(AuthController());
 
-  Rx<OfflineCacheStatus?> offlineCacheStatus = Rx(null);
+  Rx<OfflineCacheStatus> offlineCacheStatus = Rx(OfflineCacheStatus());
 
   OfflineCacheSyncController(
       {this.offlineCacheItems = const [], this.box, this.database});
@@ -25,6 +26,8 @@ class OfflineCacheSyncController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    offlineCacheStatus.value =
+        OfflineCacheStatus(cachepages: offlineCacheItems);
     //
     // updateCache();
   }
@@ -42,16 +45,38 @@ class OfflineCacheSyncController extends GetxController {
     // }
   }
 
-  getOfflineCacheSinglePage(OfflineCacheItem item) async {
-    var name = item.tableName;
-    var path = item.path;
+  getOfflineCacheItem() async {
+    offlineCacheStatus.value =
+        OfflineCacheStatus(cachepages: offlineCacheItems);
+    for (var i = 0;
+        i < (offlineCacheStatus.value?.cachepages.length ?? 0);
+        i++) {
+      var item = offlineCacheStatus.value?.cachepages?[i];
+      if (item != null) {
+        await getOfflineCacheSinglePage(item, i);
+      }
+    }
+    dprint("Notifiy people");
+  }
+
+  getOfflineCacheSinglePage(OfflineCacheItem offlineItem, int mainIndex) async {
+    var name = offlineItem.tableName;
+    var path = offlineItem.path;
     dprint("Cache $name");
     var hadMoredata = true;
     var page = 1;
+    isLoading.value = true;
+    offlineItem.count = 0;
+
     while (hadMoredata) {
       dprint("Getting cache $name  Page:$page");
+      offlineItem.status = cacheStatus.processing;
       var pageResult = await getItemFromApi(path, page.toString());
       var items = pageResult.results;
+      dprint(pageResult.count);
+      offlineItem.totalCount = pageResult.count;
+      var hasErrors = false;
+
       if (items != null) {
         if (box != null) {
           // dprint("Saving ${items.length} $name");
@@ -62,11 +87,14 @@ class OfflineCacheSyncController extends GetxController {
             try {
               await database?.insertItem(name, item);
             } catch (e, stackTrace) {
+              hasErrors = true;
               print("Db add failed.");
               // TODO: remove
               debugPrintStack(stackTrace: stackTrace);
               print(e);
             }
+            offlineItem.count = offlineItem.count + 1;
+            updateOfflineStatus(mainIndex, offlineItem);
           }
         }
         dprint("Saved $name page $page");
@@ -75,19 +103,18 @@ class OfflineCacheSyncController extends GetxController {
       if (pageResult.next == null) {
         hadMoredata = false;
       }
+      offlineItem.status =
+          hasErrors ? cacheStatus.partial : cacheStatus.completed;
+      updateOfflineStatus(mainIndex, offlineItem);
+
+      isLoading.value = false;
     }
   }
 
-  getOfflineCacheItem() async {
-    var pages = offlineCacheItems
-        .map((e) => CachePageIndicator(name: e.tableName))
-        .toList();
-    offlineCacheStatus.value = OfflineCacheStatus();
-    for (var i = 0; i < offlineCacheItems.length; i++) {
-      var item = offlineCacheItems[i];
-      await getOfflineCacheSinglePage(item);
-    }
-    dprint("Notifiy people");
+  updateOfflineStatus(int index, OfflineCacheItem offlineItem) {
+    offlineCacheItems[index] = offlineItem;
+    offlineCacheStatus.value =
+        OfflineCacheStatus(cachepages: offlineCacheItems);
   }
 
   Future<PageResult> getItemFromApi(String path, String page) async {

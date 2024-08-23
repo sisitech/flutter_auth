@@ -11,11 +11,11 @@ import 'package:flutter_utils/models.dart';
 import 'package:flutter_utils/network_status/network_status_controller.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-
 import 'database/db.dart';
 import 'internalization/translate.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:flutter_auth/offline_cache/offline_cache_widget.dart';
 import 'package:path/path.dart' as p;
 import 'package:drift/native.dart';
 
@@ -55,11 +55,19 @@ void main() async {
   const v1 = "api/v1";
 
   Get.put(OfflineCacheSyncController(
-      database: AppDatabase(_openConnection()),
-      offlineCacheItems: [
-        OfflineCacheItem(tableName: 'category', path: "$v1/tagging-rules"),
-        // OfflineCacheItem(tableName: 'sub_categories', path: "$v1/sub-categories"),
-      ]));
+    database: AppDatabase(_openConnection()),
+    offlineCacheItems: [
+      OfflineCacheItem(
+          tableName: 'category',
+          nickName: 'Dataset 1',
+          path: "$v1/tagging-rules"),
+      // OfflineCacheItem(
+      //   tableName: 'sub_categories',
+      //   nickName: "Dataset 2",
+      //   path: "$v1/sub-categories",
+      // ),
+    ],
+  ));
 
   // StoreBinding();
   runApp(const MyApp());
@@ -112,6 +120,7 @@ class MyHomePage extends StatelessWidget {
             children: [
               if (authController.isAuthenticated$.value) ...[
                 Text("hello"),
+                OfflineCacheListWidget(),
                 HomePage(),
               ] else
                 // LoginWidget(
