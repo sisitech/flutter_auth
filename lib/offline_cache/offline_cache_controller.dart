@@ -71,7 +71,8 @@ class OfflineCacheSyncController extends GetxController {
     while (hadMoredata) {
       dprint("Getting cache $name  Page:$page");
       offlineItem.status = cacheStatus.processing;
-      var pageResult = await getItemFromApi(path, page.toString());
+      var pageResult = await getItemFromApi(path, page.toString(),
+          pageSize: offlineItem.pageSize);
       var items = pageResult.results;
       dprint(pageResult.count);
       offlineItem.totalCount = pageResult.count;
@@ -117,11 +118,13 @@ class OfflineCacheSyncController extends GetxController {
         OfflineCacheStatus(cachepages: offlineCacheItems);
   }
 
-  Future<PageResult> getItemFromApi(String path, String page) async {
+  Future<PageResult> getItemFromApi(String path, String page,
+      {int pageSize = 100}) async {
     PageResult pageResult = PageResult();
 
     try {
-      var res = await authProv.formGet(path, query: {"page": page});
+      var res = await authProv
+          .formGet(path, query: {"page": page, "page_size": pageSize});
       if (res.statusCode == 200) {
         pageResult.isSuccessful = true;
         try {

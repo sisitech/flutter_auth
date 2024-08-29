@@ -20,12 +20,14 @@ class OfflineCacheItem {
   late int totalCount;
   late int count;
   late cacheStatus status;
+  final int pageSize;
 
   OfflineCacheItem({
     required this.path,
     required this.tableName,
     this.nickName,
     this.totalCount = 0,
+    this.pageSize = 100,
     this.status = cacheStatus.scheduled,
     this.count = 0,
   });
