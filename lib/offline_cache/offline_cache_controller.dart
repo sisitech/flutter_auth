@@ -48,6 +48,7 @@ class OfflineCacheSyncController extends GetxController {
   getOfflineCacheItem() async {
     offlineCacheStatus.value =
         OfflineCacheStatus(cachepages: offlineCacheItems);
+    isLoading.value = true;
     for (var i = 0;
         i < (offlineCacheStatus.value?.cachepages.length ?? 0);
         i++) {
@@ -56,6 +57,7 @@ class OfflineCacheSyncController extends GetxController {
         await getOfflineCacheSinglePage(item, i);
       }
     }
+    isLoading.value = false;
     dprint("Notifiy people");
   }
 
@@ -65,7 +67,7 @@ class OfflineCacheSyncController extends GetxController {
     dprint("Cache $name");
     var hadMoredata = true;
     var page = 1;
-    isLoading.value = true;
+
     offlineItem.count = 0;
 
     while (hadMoredata) {
@@ -107,8 +109,6 @@ class OfflineCacheSyncController extends GetxController {
       offlineItem.status =
           hasErrors ? cacheStatus.partial : cacheStatus.completed;
       updateOfflineStatus(mainIndex, offlineItem);
-
-      isLoading.value = false;
     }
   }
 
