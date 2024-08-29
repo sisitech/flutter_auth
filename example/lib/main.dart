@@ -59,6 +59,7 @@ void main() async {
     offlineCacheItems: [
       OfflineCacheItem(
           tableName: 'category',
+          pageSize: 300,
           nickName: 'Dataset 1',
           path: "$v1/tagging-rules"),
       // OfflineCacheItem(

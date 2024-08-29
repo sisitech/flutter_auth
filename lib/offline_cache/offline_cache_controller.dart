@@ -123,8 +123,8 @@ class OfflineCacheSyncController extends GetxController {
     PageResult pageResult = PageResult();
 
     try {
-      var res = await authProv
-          .formGet(path, query: {"page": page, "page_size": pageSize});
+      var res = await authProv.formGet(path,
+          query: {"page": page, "page_size": pageSize.toString()});
       if (res.statusCode == 200) {
         pageResult.isSuccessful = true;
         try {
