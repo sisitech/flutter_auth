@@ -37,7 +37,7 @@ dependencies:
     git:
       url: git@github.com:sisitech/flutter-forms.git
       ref: d11f5e1
-      
+
   flutter_utils:
     git:
       url: git@github.com:sisitech/flutter_utils.git
@@ -56,16 +56,15 @@ dependencies:
     git:
       url: git@github.com:sisitech/flutter_login.git
 
-
 dependency_overrides:
   flutter_auth:
     path: ../
-  
+
   flutter_form:
     git:
       url: git@github.com:sisitech/flutter-forms.git
-      ref: d11f5e1
-      
+      ref: 1912fbd
+
   flutter_utils:
     git:
       url: git@github.com:sisitech/flutter_utils.git
@@ -77,7 +76,6 @@ dev_dependencies:
   drift_dev: ^2.4.1
   build_runner: ^2.3.3
   json_serializable: ^6.0.0
-  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

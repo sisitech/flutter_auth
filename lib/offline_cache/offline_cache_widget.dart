@@ -17,18 +17,6 @@ class OfflineCacheListWidget extends StatelessWidget {
     return Obx(() {
       return Column(
         children: [
-          ElevatedButton.icon(
-            onPressed: offlineCont.isLoading.value
-                ? null
-                : () async {
-                    await offlineCont.updateCache();
-                    if (onSynComplete != null) {
-                      onSynComplete!();
-                    }
-                  },
-            icon: Icon(Icons.refresh),
-            label: Text("Update"),
-          ),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -48,6 +36,27 @@ class OfflineCacheListWidget extends StatelessWidget {
             },
             itemCount: offlineCont.offlineCacheStatus.value?.cachepages.length,
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton.icon(
+              onPressed: offlineCont.isLoading.value
+                  ? null
+                  : () async {
+                      await offlineCont.updateCache();
+                      if (onSynComplete != null) {
+                        onSynComplete!();
+                      }
+                    },
+              icon: const Icon(Icons.refresh),
+              label: const Text("Update"),
+            ),
+          ),
+          // if (offlineCont.allProgress.value > 0.0001)
+          // Text(offlineCont.currentOfflineItemIndex.value.toString()),
+          // LinearProgressIndicator(
+          //   minHeight: 4,
+          //   value: offlineCont.allProgress.value,
+          // )
         ],
       );
     });

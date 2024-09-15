@@ -19,6 +19,8 @@ import 'package:flutter_auth/offline_cache/offline_cache_widget.dart';
 import 'package:path/path.dart' as p;
 import 'package:drift/native.dart';
 
+import 'teacher_options.dart';
+
 getApiConfig() {
   return APIConfig(
       apiEndpoint: "https://api.expensetracker.wavvy.dev",
@@ -54,14 +56,21 @@ void main() async {
   Get.put(NetworkStatusController());
   const v1 = "api/v1";
 
+  var box = GetStorage();
+
   Get.put(OfflineCacheSyncController(
-    database: AppDatabase(_openConnection()),
+    box: box,
     offlineCacheItems: [
       OfflineCacheItem(
           tableName: 'category',
           pageSize: 300,
           nickName: 'Dataset 1',
-          path: "$v1/tagging-rules"),
+          path: "$v1/categories"),
+      OfflineCacheItem(
+          tableName: 'category2',
+          pageSize: 300,
+          nickName: 'Cat2',
+          path: "$v1/categories"),
       // OfflineCacheItem(
       //   tableName: 'sub_categories',
       //   nickName: "Dataset 2",
@@ -123,6 +132,36 @@ class MyHomePage extends StatelessWidget {
                 Text("hello"),
                 OfflineCacheListWidget(),
                 HomePage(),
+                MyCustomForm(
+                  name: "Hello",
+                  formItems: teacherOptions,
+                  url: "api/v1/teachers",
+                  enableOfflineMode: true,
+                  enableOfflineSave: true,
+                  // onControllerSetup: (contr) => controller = contr,
+                  instance: false
+                      ? null
+                      : {
+                          "contact_email": "michameiu@gmail.com",
+                          "id": 34,
+                          "role": 1,
+                          // "modified": "2023-03-04",
+                          "contact_phone": "2323aba989dad",
+                          // "tsc_no": "A3B4",
+                          "phone": const ["121", "12", "13", "14"],
+                        },
+                  storageContainer: "school",
+                  PreSaveData: (formData) {
+                    dprint(formData);
+                    return formData;
+                  },
+                  formGroupOrder: const [
+                    ['role'],
+                    ["contact_email_test"],
+                    ['contact_email_e'],
+                  ],
+                  formTitle: "Login",
+                )
               ] else
                 // LoginWidget(
                 //   // override_options: const {

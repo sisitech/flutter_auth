@@ -20,6 +20,10 @@ class OfflineCacheSyncController extends GetxController {
 
   Rx<OfflineCacheStatus> offlineCacheStatus = Rx(OfflineCacheStatus());
 
+  var allProgress = 0.0.obs;
+  var allTotalCount = 0.obs;
+  var currentTotalCount = 0.obs;
+  var currentOfflineItemIndex = 0.obs;
   OfflineCacheSyncController(
       {this.offlineCacheItems = const [], this.box, this.database});
 
@@ -61,6 +65,34 @@ class OfflineCacheSyncController extends GetxController {
     dprint("Notifiy people");
   }
 
+  updateTotalProgress(var index) {
+    List<OfflineCacheItem> pages = offlineCacheStatus.value.cachepages;
+    allTotalCount.value = 0;
+    currentTotalCount.value = 0;
+    if (currentOfflineItemIndex.value != index) {
+      currentOfflineItemIndex.value = index;
+    }
+    for (var page in pages) {
+      if (page.status == cacheStatus.completed) {
+        allTotalCount.value += page.totalCount;
+        currentTotalCount.value += page.count;
+      } else {
+        allTotalCount.value += page.totalCount;
+        currentTotalCount.value += page.count;
+      }
+    }
+    // } else {
+    //   currentTotalCount.value += 1;
+    // }
+    allProgress.value = (allTotalCount.value < 1
+            ? 0.0
+            : currentTotalCount.value / allTotalCount.value) /
+        (pages.length - index);
+
+    dprint(
+        "INdex $index, ALL:${allTotalCount.value}, Current:${currentTotalCount.value} ${allProgress.value}");
+  }
+
   getOfflineCacheSinglePage(OfflineCacheItem offlineItem, int mainIndex) async {
     var name = offlineItem.tableName;
     var path = offlineItem.path;
@@ -76,14 +108,20 @@ class OfflineCacheSyncController extends GetxController {
       var pageResult = await getItemFromApi(path, page.toString(),
           pageSize: offlineItem.pageSize);
       var items = pageResult.results;
-      dprint(pageResult.count);
+      // dprint(pageResult.count);
       offlineItem.totalCount = pageResult.count;
+
       var hasErrors = false;
 
       if (items != null) {
         if (box != null) {
           // dprint("Saving ${items.length} $name");
-          await box?.write(name, items);
+          await box?.write(name, items.toString());
+          for (var item in items) {
+            offlineItem.count = offlineItem.count + 1;
+            // await Future.delayed(Duration(milliseconds: 250));
+            updateOfflineStatus(mainIndex, offlineItem);
+          }
         } else if (database != null) {
           // dprint("Saving katadabase..");
           for (var item in items) {
@@ -116,6 +154,7 @@ class OfflineCacheSyncController extends GetxController {
     offlineCacheItems[index] = offlineItem;
     offlineCacheStatus.value =
         OfflineCacheStatus(cachepages: offlineCacheItems);
+    updateTotalProgress(index);
   }
 
   Future<PageResult> getItemFromApi(String path, String page,
