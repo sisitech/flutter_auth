@@ -89,21 +89,21 @@ class OfflineCacheSyncController extends GetxController {
             : currentTotalCount.value / allTotalCount.value) /
         (pages.length - index);
 
-    dprint(
-        "INdex $index, ALL:${allTotalCount.value}, Current:${currentTotalCount.value} ${allProgress.value}");
+    // dprint(
+    //     "INdex $index, ALL:${allTotalCount.value}, Current:${currentTotalCount.value} ${allProgress.value}");
   }
 
   getOfflineCacheSinglePage(OfflineCacheItem offlineItem, int mainIndex) async {
     var name = offlineItem.tableName;
     var path = offlineItem.path;
-    dprint("Cache $name");
+    // dprint("Cache $name");
     var hadMoredata = true;
     var page = 1;
 
     offlineItem.count = 0;
 
     while (hadMoredata) {
-      dprint("Getting cache $name  Page:$page");
+      // dprint("Getting cache $name  Page:$page");
       offlineItem.status = cacheStatus.processing;
       var pageResult = await getItemFromApi(path, page.toString(),
           pageSize: offlineItem.pageSize);
@@ -138,7 +138,7 @@ class OfflineCacheSyncController extends GetxController {
             updateOfflineStatus(mainIndex, offlineItem);
           }
         }
-        dprint("Saved $name page $page");
+        // dprint("Saved $name page $page");
       }
       page++;
       if (pageResult.next == null) {
