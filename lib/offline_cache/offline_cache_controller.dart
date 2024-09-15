@@ -116,7 +116,10 @@ class OfflineCacheSyncController extends GetxController {
       if (items != null) {
         if (box != null) {
           // dprint("Saving ${items.length} $name");
-          await box?.write(name, items.toString());
+          await box?.write(name, items);
+          dprint("STORED...");
+          dprint(await box?.read(name));
+          dprint(await box?.read(name).runtimeType);
           for (var item in items) {
             offlineItem.count = offlineItem.count + 1;
             // await Future.delayed(Duration(milliseconds: 250));

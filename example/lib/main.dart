@@ -67,10 +67,10 @@ void main() async {
           nickName: 'Dataset 1',
           path: "$v1/categories"),
       OfflineCacheItem(
-          tableName: 'category2',
+          tableName: 'subCategory',
           pageSize: 300,
           nickName: 'Cat2',
-          path: "$v1/categories"),
+          path: "$v1/sub-categories"),
       // OfflineCacheItem(
       //   tableName: 'sub_categories',
       //   nickName: "Dataset 2",
@@ -124,59 +124,61 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Login"),
       ),
-      body: Obx(() => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (authController.isAuthenticated$.value) ...[
-                Text("hello"),
-                OfflineCacheListWidget(),
-                HomePage(),
-                MyCustomForm(
-                  name: "Hello",
-                  formItems: teacherOptions,
-                  url: "api/v1/teachers",
-                  enableOfflineMode: true,
-                  enableOfflineSave: true,
-                  // onControllerSetup: (contr) => controller = contr,
-                  instance: false
-                      ? null
-                      : {
-                          "contact_email": "michameiu@gmail.com",
-                          "id": 34,
-                          "role": 1,
-                          // "modified": "2023-03-04",
-                          "contact_phone": "2323aba989dad",
-                          // "tsc_no": "A3B4",
-                          "phone": const ["121", "12", "13", "14"],
-                        },
-                  storageContainer: "school",
-                  PreSaveData: (formData) {
-                    dprint(formData);
-                    return formData;
-                  },
-                  formGroupOrder: const [
-                    ['role'],
-                    ["contact_email_test"],
-                    ['contact_email_e'],
-                  ],
-                  formTitle: "Login",
-                )
-              ] else
-                // LoginWidget(
-                //   // override_options: const {
-                //   //   "instance": {
-                //   //     "username": "michameiu@gmail.com",
-                //   //     "password": "mm",
-                //   //   }
-                //   // },
-                //   onLoginChange: (state) {
-                //     dprint(state);
-                //   },
-                // ),
-                LoginWidgetA(),
-            ],
-          )),
+      body: SingleChildScrollView(
+        child: Obx(() => Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (authController.isAuthenticated$.value) ...[
+                  Text("hello"),
+                  OfflineCacheListWidget(),
+                  HomePage(),
+                  MyCustomForm(
+                    name: "Hello",
+                    formItems: teacherOptions,
+                    url: "api/v1/teachers",
+                    enableOfflineMode: true,
+                    enableOfflineSave: true,
+                    // onControllerSetup: (contr) => controller = contr,
+                    instance: false
+                        ? null
+                        : {
+                            "contact_email": "michameiu@gmail.com",
+                            "id": 34,
+                            "role": 1,
+                            // "modified": "2023-03-04",
+                            "contact_phone": "2323aba989dad",
+                            // "tsc_no": "A3B4",
+                            "phone": const ["121", "12", "13", "14"],
+                          },
+                    // storageContainer: "school",
+                    PreSaveData: (formData) {
+                      dprint(formData);
+                      return formData;
+                    },
+                    formGroupOrder: const [
+                      ['role'],
+                      ["contact_email_test"],
+                      ['contact_email_e'],
+                    ],
+                    formTitle: "Login",
+                  )
+                ] else
+                  // LoginWidget(
+                  //   // override_options: const {
+                  //   //   "instance": {
+                  //   //     "username": "michameiu@gmail.com",
+                  //   //     "password": "mm",
+                  //   //   }
+                  //   // },
+                  //   onLoginChange: (state) {
+                  //     dprint(state);
+                  //   },
+                  // ),
+                  LoginWidgetA(),
+              ],
+            )),
+      ),
     );
   }
 }
