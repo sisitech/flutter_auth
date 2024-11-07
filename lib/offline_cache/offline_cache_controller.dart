@@ -102,11 +102,15 @@ class OfflineCacheSyncController extends GetxController {
 
     offlineItem.count = 0;
 
+    /// Clear the table
+    dprint("Getting ${offlineItem.nickName}");
+
     while (hadMoredata) {
       // dprint("Getting cache $name  Page:$page");
       offlineItem.status = cacheStatus.processing;
       var pageResult = await getItemFromApi(path, page.toString(),
           pageSize: offlineItem.pageSize);
+
       var items = pageResult.results;
       // dprint(pageResult.count);
       offlineItem.totalCount = pageResult.count;
