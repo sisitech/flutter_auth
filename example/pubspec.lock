@@ -369,8 +369,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "95f033d"
-      resolved-ref: "95f033d69cbe40fd3e682ad2f7fc0c0c305f5154"
+      ref: "68aa594"
+      resolved-ref: "68aa594242a67d8a61426e970e876f252aa9e4cb"
       url: "git@github.com:sisitech/flutter-forms.git"
     source: git
     version: "0.0.2"
