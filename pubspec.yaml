@@ -4,8 +4,7 @@ version: 0.0.1
 homepage: sisitech.com
 
 environment:
-  sdk: ">=2.18.5 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=3.5.0 <3.6.0"
 
 dependencies:
   encrypt: ^5.0.1
@@ -15,8 +14,9 @@ dependencies:
   flutter_utils:
     git:
       url: git@github.com:sisitech/flutter_utils.git
+      ref: "b68a85f"
 
-  get: ^4.6.5
+  get: ^4.6.6
   get_storage: ^2.0.3
   intl: ^0.19.0
   drift: ^2.4.2
