@@ -25,6 +25,7 @@ class AuthProvider extends GetConnect {
     dprint(config);
     dprint("The base url is");
     dprint(httpClient.baseUrl);
+    httpClient.timeout = const Duration(seconds: 10);
     httpClient.addRequestModifier<dynamic>((request) async {
       var token = await getToken();
       if (token != null) {

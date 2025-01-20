@@ -15,8 +15,8 @@ class OfflineCacheSyncController extends GetxController {
   OfflineCacheTable? database;
   var isLoading = false.obs;
 
-  AuthProvider authProv = Get.put<AuthProvider>(AuthProvider());
-  AuthController authController = Get.put<AuthController>(AuthController());
+  AuthProvider authProv = Get.find<AuthProvider>();
+  AuthController authController = Get.find<AuthController>();
 
   Rx<OfflineCacheStatus> offlineCacheStatus = Rx(OfflineCacheStatus());
 
