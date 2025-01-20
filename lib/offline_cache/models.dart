@@ -43,10 +43,14 @@ class PageResult {
   late String? previous;
   late int count;
   late List<dynamic> results;
+  late String? error;
+  late String? statusCode;
 
   PageResult({
     this.next,
     this.previous,
+    this.statusCode,
+    this.error,
     this.isSuccessful = false,
     this.count = 0,
     this.results = const [],

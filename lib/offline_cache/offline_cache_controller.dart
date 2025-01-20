@@ -171,8 +171,10 @@ class OfflineCacheSyncController extends GetxController {
     try {
       var res = await authProv.formGet(path,
           query: {"page": page, "page_size": pageSize.toString()});
+      pageResult.statusCode = res.statusCode.toString();
       if (res.statusCode == 200) {
         pageResult.isSuccessful = true;
+
         try {
           // return res.body["results"];
           pageResult.next = res.body["next"];
@@ -182,13 +184,16 @@ class OfflineCacheSyncController extends GetxController {
         } catch (e) {
           dprint(e);
           pageResult.isSuccessful = true;
+          pageResult.error = e.toString();
         }
       } else {
         dprint(res.statusCode);
         dprint(res.body);
+        pageResult.error = res.bodyString;
       }
     } catch (e) {
       dprint("Failed");
+      pageResult.error = e.toString();
       dprint(e);
     }
     return pageResult;
