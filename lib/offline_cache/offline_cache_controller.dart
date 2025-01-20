@@ -117,7 +117,7 @@ class OfflineCacheSyncController extends GetxController {
 
       var hasErrors = false;
 
-      if (items != null) {
+      if (items != null && pageResult.statusCode == "200") {
         if (box != null) {
           // dprint("Saving ${items.length} $name");
           await box?.write(name, items);
