@@ -59,8 +59,7 @@ class AuthProvider extends GetConnect {
   }
 
   Future<Response> formGet(String? path,
-      {contentType = "application/json",
-      Map<String, dynamic> query = const {}}) {
+      {contentType = "application/json", Map<String, dynamic>? query = null}) {
     var url = "${config!.apiEndpoint}/${path}";
     dprint(url);
     dprint(query);
@@ -68,8 +67,7 @@ class AuthProvider extends GetConnect {
   }
 
   Future<Response> formDelete(String? path,
-      {contentType = "application/json",
-      Map<String, dynamic> query = const {}}) {
+      {contentType = "application/json", Map<String, dynamic>? query = null}) {
     var url = "${config!.apiEndpoint}/${path}";
     dprint(url);
     dprint(query);
