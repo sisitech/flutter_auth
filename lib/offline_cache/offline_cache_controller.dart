@@ -14,6 +14,7 @@ class OfflineCacheSyncController extends GetxController {
   GetStorage? box;
   OfflineCacheTable? database;
   var isLoading = false.obs;
+  final bool enableIncrementalSync;
 
   AuthProvider authProv = Get.find<AuthProvider>();
   AuthController authController = Get.find<AuthController>();
@@ -24,8 +25,15 @@ class OfflineCacheSyncController extends GetxController {
   var allTotalCount = 0.obs;
   var currentTotalCount = 0.obs;
   var currentOfflineItemIndex = 0.obs;
-  OfflineCacheSyncController(
-      {this.offlineCacheItems = const [], this.box, this.database});
+  var syncedItemsCount = 0.obs;
+  var skippedItemsCount = 0.obs;
+
+  OfflineCacheSyncController({
+    this.offlineCacheItems = const [],
+    this.box,
+    this.database,
+    this.enableIncrementalSync = true,
+  });
 
   @override
   void onInit() {
@@ -43,10 +51,53 @@ class OfflineCacheSyncController extends GetxController {
     // dprint("Auth ::==> ${authController.isAuthenticated$.value} ");
     // await authController.checkloggedIn();
     // if(authController.isAuthenticated$.value){
+    syncedItemsCount.value = 0;
+    skippedItemsCount.value = 0;
     await getOfflineCacheItem();
     // }else {
     //   dprint("Waiting for authentication, will try on next rebbot");
     // }
+  }
+
+  StoredSyncInfo? getStoredSyncInfo(String tableName) {
+    try {
+      var data = GetStorage().read<Map<String, dynamic>>('sync_$tableName');
+      if (data == null) return null;
+      return StoredSyncInfo.fromJson(data);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> saveSyncInfo(String tableName, String modified, int count) async {
+    var info = StoredSyncInfo(
+      modified: modified,
+      syncTime: DateTime.now(),
+      count: count,
+    );
+    await GetStorage().write('sync_$tableName', info.toJson());
+  }
+
+  Future<void> clearSyncInfo(String tableName) async {
+    await GetStorage().remove('sync_$tableName');
+  }
+
+  Future<void> clearAllSyncInfo() async {
+    for (var item in offlineCacheItems) {
+      await clearSyncInfo(item.tableName);
+    }
+  }
+
+  Future<void> forceFullSync() async {
+    await clearAllSyncInfo();
+    await updateCache();
+  }
+
+  String? extractModified(dynamic item) {
+    if (item is Map && item.containsKey('modified')) {
+      return item['modified']?.toString();
+    }
+    return null;
   }
 
   getOfflineCacheItem() async {
@@ -96,41 +147,85 @@ class OfflineCacheSyncController extends GetxController {
   getOfflineCacheSinglePage(OfflineCacheItem offlineItem, int mainIndex) async {
     var name = offlineItem.tableName;
     var path = offlineItem.path;
-    // dprint("Cache $name");
     var hadMoredata = true;
     var page = 1;
 
     offlineItem.count = 0;
 
-    /// Clear the table
     dprint("Getting ${offlineItem.nickName}");
 
+    // Check for incremental sync
+    String? modifiedAfter;
+    bool useIncrementalSync =
+        enableIncrementalSync && offlineItem.enableIncrementalSync;
+
+    if (useIncrementalSync) {
+      var storedInfo = getStoredSyncInfo(name);
+      if (storedInfo != null) {
+        modifiedAfter = storedInfo.modified;
+        dprint("Using incremental sync from: $modifiedAfter");
+      }
+    }
+
+    String? latestModified;
+
     while (hadMoredata) {
-      // dprint("Getting cache $name  Page:$page");
       offlineItem.status = cacheStatus.processing;
-      var pageResult = await getItemFromApi(path, page.toString(),
-          pageSize: offlineItem.pageSize);
+      var pageResult = await getItemFromApi(
+        path,
+        page.toString(),
+        pageSize: offlineItem.pageSize,
+        modifiedAfter: modifiedAfter,
+      );
 
       var items = pageResult.results;
-      // dprint(pageResult.count);
       offlineItem.totalCount = pageResult.count;
+
+      // If count=0 and we used modifiedAfter, skip this item
+      if (pageResult.count == 0 && modifiedAfter != null) {
+        offlineItem.status = cacheStatus.skipped;
+        skippedItemsCount.value++;
+        updateOfflineStatus(mainIndex, offlineItem);
+        dprint("Skipped ${offlineItem.nickName} - no changes since last sync");
+        return;
+      }
 
       var hasErrors = false;
 
       if (items != null && pageResult.statusCode == "200") {
+        // Track the latest modified timestamp from items
+        for (var item in items) {
+          var itemModified = extractModified(item);
+          if (itemModified != null) {
+            if (latestModified == null || itemModified.compareTo(latestModified) > 0) {
+              latestModified = itemModified;
+            }
+          }
+        }
+
         if (box != null) {
-          // dprint("Saving ${items.length} $name");
-          await box?.write(name, items);
+          if (modifiedAfter != null) {
+            // Incremental: upsert by ID field
+            var existingData = await box?.read(name) as List<dynamic>? ?? [];
+            var idKey = offlineItem.idField;
+            for (var newItem in items) {
+              var newId = newItem[idKey];
+              if (newId != null) {
+                existingData.removeWhere((e) => e[idKey] == newId);
+              }
+              existingData.add(newItem);
+            }
+            await box?.write(name, existingData);
+          } else {
+            // Full sync: replace data
+            await box?.write(name, items);
+          }
           dprint("STORED...");
-          dprint(await box?.read(name));
-          dprint(await box?.read(name).runtimeType);
-          for (var item in items) {
+          for (var _ in items) {
             offlineItem.count = offlineItem.count + 1;
-            // await Future.delayed(Duration(milliseconds: 250));
             updateOfflineStatus(mainIndex, offlineItem);
           }
         } else if (database != null) {
-          // dprint("Saving katadabase..");
           for (var item in items) {
             try {
               await database?.insertItem(name, item);
@@ -145,7 +240,6 @@ class OfflineCacheSyncController extends GetxController {
             updateOfflineStatus(mainIndex, offlineItem);
           }
         }
-        // dprint("Saved $name page $page");
       }
       page++;
       if (pageResult.next == null) {
@@ -154,6 +248,13 @@ class OfflineCacheSyncController extends GetxController {
       offlineItem.status =
           hasErrors ? cacheStatus.partial : cacheStatus.completed;
       updateOfflineStatus(mainIndex, offlineItem);
+    }
+
+    // Save sync info after successful sync
+    if (latestModified != null && offlineItem.status == cacheStatus.completed) {
+      await saveSyncInfo(name, latestModified, offlineItem.totalCount);
+      syncedItemsCount.value++;
+      dprint("Saved sync info for $name with modified: $latestModified");
     }
   }
 
@@ -164,13 +265,20 @@ class OfflineCacheSyncController extends GetxController {
     updateTotalProgress(index);
   }
 
-  Future<PageResult> getItemFromApi(String path, String page,
-      {int pageSize = 100}) async {
+  Future<PageResult> getItemFromApi(
+    String path,
+    String page, {
+    int pageSize = 100,
+    String? modifiedAfter,
+  }) async {
     PageResult pageResult = PageResult();
 
     try {
-      var res = await authProv.formGet(path,
-          query: {"page": page, "page_size": pageSize.toString()});
+      var query = {"page": page, "page_size": pageSize.toString()};
+      if (modifiedAfter != null) {
+        query["modified_after"] = modifiedAfter;
+      }
+      var res = await authProv.formGet(path, query: query);
       pageResult.statusCode = res.statusCode.toString();
       if (res.statusCode == 200) {
         pageResult.isSuccessful = true;

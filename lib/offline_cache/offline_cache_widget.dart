@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_utils/text_view/text_view_extensions.dart';
 import 'package:get/get.dart';
 
+import 'models.dart';
 import 'offline_cache_controller.dart';
 
 class OfflineCacheListWidget extends StatelessWidget {
@@ -26,12 +27,14 @@ class OfflineCacheListWidget extends StatelessWidget {
               return ListTile(
                 title: Text(cachePage?.nickName ?? ""),
                 subtitle: Text(cachePage?.status_name ?? "Scheduled"),
-                trailing: Text(
-                  "@count# of @total#".interpolate({
-                    "total": cachePage?.totalCount ?? 0,
-                    "count": cachePage?.count ?? 0
-                  }),
-                ),
+                trailing: cachePage?.status == cacheStatus.skipped
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : Text(
+                        "@count# of @total#".interpolate({
+                          "total": cachePage?.totalCount ?? 0,
+                          "count": cachePage?.count ?? 0
+                        }),
+                      ),
               );
             },
             itemCount: offlineCont.offlineCacheStatus.value?.cachepages.length,

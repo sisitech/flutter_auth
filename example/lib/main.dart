@@ -23,9 +23,9 @@ import 'teacher_options.dart';
 
 getApiConfig() {
   return APIConfig(
-      apiEndpoint: "https://api.expensetracker.wavvy.dev",
+      apiEndpoint: "https://expensetrackerapi.cntb.onekana.ke",
       version: "api/v1",
-      clientId: "fbaPXGrD6wewVEqoOkJfvierIrYbnROPXMa8CDv5",
+      clientId: "qhqdAlmM63qTV5jgq0pYia8iYlp10L1snPqEMR8O",
       tokenUrl: 'o/token/',
       grantType: "password",
       revokeTokenUrl: 'o/revoke_token/');
@@ -145,7 +145,7 @@ class MyHomePage extends StatelessWidget {
                         : {
                             "contact_email": "michameiu@gmail.com",
                             "id": 34,
-                            "role": 1,
+                            "role": "1",
                             // "modified": "2023-03-04",
                             "contact_phone": "2323aba989dad",
                             // "tsc_no": "A3B4",
