@@ -24,6 +24,10 @@ class AuthController extends GetxController {
   Rx<Map<String, dynamic>?> profile = Rx(null);
   Rx<Map<String, dynamic>?> offlineCred = Rx(null);
 
+  /// Called once when the refresh token is rejected and the user has to log in again.
+  void Function()? onSessionExpired;
+  bool _sessionExpiredHandled = false;
+
   @override
   void onInit() {
     // TODO: implement onInit
@@ -57,9 +61,10 @@ class AuthController extends GetxController {
     if (token.containsKey("expires_at")) {
       return token["expires_at"];
     }
-    var expires_in = token?["expires_in"] ?? default_expires_in;
-    // dprint(expires_in);
-    double expires_in_seconds_80_percent = (expires_in * 0.8) as double;
+    num expires_in =
+        num.tryParse("${token["expires_in"]}") ?? default_expires_in;
+    // Refresh once 80% of the token's lifetime has passed.
+    double expires_in_seconds_80_percent = expires_in * 0.8;
     int expires_sec = expires_in_seconds_80_percent.round();
     dprint(expires_in_seconds_80_percent);
     dprint(expires_sec);
@@ -73,8 +78,10 @@ class AuthController extends GetxController {
   }
 
   saveToken(Map<String, dynamic> body) async {
-    body.remove("expires_in");
+    _sessionExpiredHandled = false;
+    // Compute from expires_in before dropping it, otherwise the 300s default is always used.
     body["expires_at"] = await getTokenExipration(body);
+    body.remove("expires_in");
     dprint(body);
     await box.write('token', body);
     return box.write('locked', false);
@@ -130,6 +137,15 @@ class AuthController extends GetxController {
   unLock() async {
     await box.write('locked', false);
     checkloggedIn();
+  }
+
+  Future<void> handleSessionExpired() async {
+    if (_sessionExpiredHandled) return;
+    _sessionExpiredHandled = true;
+    dprint("Session expired");
+    await box.remove('token');
+    await lock();
+    onSessionExpired?.call();
   }
 
   logout() async {
